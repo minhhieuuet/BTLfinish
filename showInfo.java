@@ -10,14 +10,26 @@ public class showInfo {
      classInfo[] classList=new classInfo[1000];
      Variable[] varList=new Variable[1000];
      Method[] methodList=new Method[1000];
-    
+     String tempType;
      int countClass=0;
      int countVar=0;
      int countMethod=0;
+     public int rank;   
      String path;
+     String path1;
     public showInfo(String path)
     {
         this.path=path;
+    }
+    public showInfo(String path,String path1)
+    {
+        this.path=path;
+        this.path1=path1;
+    }
+    
+    public classInfo[] getCl()
+    {
+        return classList;
     }
     public void addVar(Variable var)
     {
@@ -47,6 +59,11 @@ public class showInfo {
     public void readFile() throws IOException {
         
         int i=0;
+        
+
+        
+        
+        
         try {
 
             //File f = new File("F:/File/Cylinder.java");
@@ -102,8 +119,11 @@ public class showInfo {
         //Get ten class
         for(int i=0;i<tempList.length;i++)
         {
+            
             if(tempList[i]!=null)
             {
+               
+                
                 if(tempList[i].contains("class")||tempList[i].contains("interface")&&!tempList[i].contains("//"))
                 {
                     /*
@@ -162,8 +182,113 @@ public class showInfo {
             }
         }
         
-       //Lay ten phuong thuc
-       String tempType;
+       
+       
+        //Lay ten bien  
+        for(int i=0;i<tempList.length;i++)
+        {
+             if(tempList[i]!=null && tempList[i].contains("(")&&!tempList[i].contains(".")&&!tempList[i].contains("+")&&!tempList[i].contains("-")&&!tempList[i].contains("*")&&!tempList[i].contains("/")&&tempList[i].contains(")")&&!tempList[i].contains("=")&&!tempList[i].contains(">")&&!tempList[i].contains("if")&&!tempList[i].contains("for")&&!tempList[i].contains("catch")&&!tempList[i].contains("new"))
+                 break;
+            if(tempList[i]!=null)
+            {
+                 className cl=new className(path1);
+                 String[] list=cl.name();
+                 
+                for(int k=0;k<list.length;k++)
+                {
+                    if(list[k]==null)
+                        break;
+                    if(tempList[i].contains(list[k])&&tempList[i].contains("new"))
+                    {
+                        tempList[i]=tempList[i].replaceAll("=", " ");
+                        
+                        String[] tarr=tempList[i].split(" ");
+                        for(int a=0;a<tarr.length;a++)
+                        {
+                            if(tarr[a].equals("new"))
+                            {
+                                if(tempList[i].contains("["))
+                                {
+                                    if(!tarr[a-1].trim().equals(""))
+                                    {
+                                    addVar(new Variable(tarr[a-1]," "+"<a>"+tarr[a+1].replaceAll(";","")));
+                                    }
+                                    
+                                }
+                                else
+                                {
+                                    if(!tarr[a-1].trim().equals(""))
+                                    {
+                                    addVar(new Variable(tarr[a-1]," "+"<a>"+list[k].replaceAll(";","")));
+                                    }
+                                    
+                                }
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                }
+                 
+                
+                
+                
+                
+                if(tempList[i].contains("int")||tempList[i].contains("float")||tempList[i].contains("double")||tempList[i].contains("String")||tempList[i].contains("boolean"))
+                {
+                    if(!tempList[i].contains("(")&&!tempList[i].contains("{")&&!tempList[i].contains("(")&&!tempList[i].contains("interface"))
+                    {
+                    tempList[i]=tempList[i].replaceAll(";","");
+                    tempList[i]=tempList[i].replaceAll("final","");
+                    tempList[i]=tempList[i].replace("public","");
+                    tempList[i]=tempList[i].replace("protected","");
+                    tempList[i]=tempList[i].replace("private","");
+                    //Xoa kieu static
+                    tempList[i]=tempList[i].replace("static","");
+                    tempList[i]=tempList[i].trim();
+                    
+                            if(!tempList[i].contains("="))
+                            {
+                                String[] getVar=tempList[i].split(" ");
+                                String type=getVar[0];
+                                getVar[0]="";
+                                String name=String.join("",getVar);
+                                if(name.contains(","))
+                                {
+                                    String[] names=name.split(",");
+                                    for(int k=0;k<names.length;k++)
+                                    {
+                                        addVar(new Variable(names[k], type));
+                                    }
+                                    
+                                }
+                                
+                            }
+                            else
+                            {
+                                    
+                                    String[] getValue=tempList[i].split("=");
+                                    
+                                    String[] getVar=getValue[0].trim().split(" ");
+                                    
+                                    
+                                    
+                                    if(getVar[0].equals("String[]"))
+                                        addVar(new Variable(getVar[1],getValue[1].trim().replaceAll("new","")));
+                                    else
+                                    {
+                                    addVar(new Variable(getVar[1], getVar[0],getValue[1].trim().replaceAll("new","")));
+                                    }
+                                    
+                            }
+                    }
+                }
+            }
+        }
+        
+        //Lay ten phuong thuc
+       
         for(int i=0;i<tempList.length;i++)
         {
             if(tempList[i]!=null)
@@ -201,54 +326,13 @@ public class showInfo {
                        addMethod(new Method("",tempList[i])) ;
                     }
                 }
-            }
-        }
-       
-        //Lay ten bien  
-        for(int i=0;i<tempList.length;i++)
-        {
-            if(tempList[i]!=null)
-            {
-                if(tempList[i].contains("int")||tempList[i].contains("float")||tempList[i].contains("double")||tempList[i].contains("String")||tempList[i].contains("boolean"))
-                {
-                    if(!tempList[i].contains("(")&&!tempList[i].contains("//")&&!tempList[i].contains("(")&&!tempList[i].contains("interface")&&!tempList[i].contains("new"))
-                    {
-                    tempList[i]=tempList[i].replaceAll(";","");
-                    tempList[i]=tempList[i].replaceAll("final","");
-                    tempList[i]=tempList[i].replace("public","");
-                    tempList[i]=tempList[i].replace("protected","");
-                    tempList[i]=tempList[i].replace("private","");
-                    //Xoa kieu static
-                    tempList[i]=tempList[i].replace("static","");
-                    tempList[i]=tempList[i].trim();
-                    
-                            if(!tempList[i].contains("="))
-                            {
-                                String[] getVar=tempList[i].split(" ");
-                                String type=getVar[0];
-                                getVar[0]="";
-                                String name=String.join("",getVar);
-                                addVar(new Variable(name, type));
-                                
-                            }
-                            else
-                            {
-                                    
-                                    String[] getValue=tempList[i].split("=");
-                                    
-                                    String[] getVar=getValue[0].trim().split(" ");
-                                    addVar(new Variable(getVar[1], getVar[0],getValue[1].trim()));
-                                    
-                                    
-                            }
-                    }
-                }
+                
             }
         }
         
     }
    
-    public int rank;   
+    
     
     public  String xuly() throws IOException {
         String s="";

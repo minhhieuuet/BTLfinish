@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -66,8 +67,18 @@ class JPanel1 extends JPanel
                 at.concatenate(AffineTransform.getRotateInstance(angle));
                 g.transform(at);
                  
-
-                g.drawLine(0, 0, len, 0);
+                
+                //g.drawLine(0, 0, len,0);
+                g.drawLine(0,0, len, 0);
+                //Shape rec=new Rectangle(len-9, 0, ARR_SIZE, ARR_SIZE);
+              
+               
+               //g.draw(rectangle);
+               
+               
+                //g.drawRect(len-20, 0, 20, 20);
+                //g.rotate(Math.toRadians(45));
+               //g.fillRect(x2, y2,ARR_SIZE,ARR_SIZE);
                 g.fillPolygon(new int[] {len, len-ARR_SIZE, len-ARR_SIZE, len},
                               new int[] {0, -ARR_SIZE, ARR_SIZE, 0}, 4);
             }
@@ -94,6 +105,36 @@ class JPanel1 extends JPanel
                 g.fillPolygon(new int[] {len, len-ARR_SIZE, len-ARR_SIZE, len},
                               new int[] {0, -ARR_SIZE, ARR_SIZE, 0}, 4);
             }
+             //
+              void drawArrow4(Graphics g1, JLabel j1,JLabel j2) {
+                Graphics2D g = (Graphics2D) g1.create();
+                int x1=j1.getX()+j1.getWidth()/2;
+                int y1=j1.getY();
+                int x2=j2.getX()+j2.getWidth()/2;
+                int y2=j2.getY()+j2.getHeight();
+                double dx = x2 - x1;
+                double dy = y2 - y1;
+                double angle = Math.atan2(dy, dx);
+                int len = (int) Math.sqrt(dx*dx + dy*dy);
+               
+                AffineTransform at = AffineTransform.getTranslateInstance(x1, y1);
+                at.concatenate(AffineTransform.getRotateInstance(angle));
+                g.transform(at);
+                
+                g.drawLine(30, 0, len, 0);
+                
+                g.drawLine(30, 0, 15, 10);
+                g.drawLine(15, 10, 0, 0);
+                g.drawLine(0, 0, 15, -10);
+                g.drawLine(15, -10, 30, 0);
+                
+              
+                //Stroke dang net dut
+                //g.drawRect(len, 0, 20, 20);
+               
+               
+            }
+             
     public void paintComponent( Graphics g ) {
                     super.paintComponent(g);
                     //Tao mot mang class info
@@ -145,8 +186,11 @@ class JPanel1 extends JPanel
                     {
                         for(int j=0;j<count;j++)
                         {
+                            
                             if(c[i].getSC().equals(c[j].getName()))
                             {
+                                
+                                
                                 if(c[i].type==1)
                                 {
                                     drawArrow2(g, l[i], l[j]);
@@ -155,6 +199,20 @@ class JPanel1 extends JPanel
                                 {
                                     drawArrow3(g, l[i], l[j]);
                                 }
+                            }
+                        }
+                        
+                    }
+                    
+                     for(int i=0;i<count;i++)
+                    {
+                        for(int j=0;j<count;j++)
+                        {
+                            if(l[i].toString().contains("<a>"+c[j].getName()))
+                            {
+                               
+                                    drawArrow4(g, l[i], l[j]);
+                               
                             }
                         }
                         
@@ -205,7 +263,7 @@ public void mouseReleased(MouseEvent e) {
 public void mouseDragged(MouseEvent e) {
     if (drag == true) {
         JComponent jc = (JComponent)e.getSource();
-        jc.setLocation((jc.getX()+e.getX()-50), jc.getY()+e.getY()-50);
+        jc.setLocation(jc.getX()+e.getX()-50, jc.getY()+e.getY()-50);
         //l[count].setLocation(jc.getX()+e.getX(),jc.getY()+e.getY());
         this.repaint();
     }
@@ -221,19 +279,7 @@ public TestSwing1(String path) throws IOException{
     this.add(panel);
     
     
-    /*
-     this.add( new JPanel() {
-                 public void paintComponent( Graphics g ) {
-                    super.paintComponent(g);
-                    Graphics2D g2 = (Graphics2D)g;
-
-                    Line2D line = new Line2D.Double(10, 10, 40, 40);
-                    g2.setColor(Color.blue);
-                    g2.setStroke(new BasicStroke(1));
-                    g2.draw(line);
-                 }
-            });
-            */
+    
     File folder = new File(path);
     File[] listOfFiles = folder.listFiles();
         for(int i=0;i<listOfFiles.length;i++)
@@ -245,8 +291,8 @@ public TestSwing1(String path) throws IOException{
                String s="  ";
                String path1;
                path1=path+listOfFiles[i].getName();
-                //showInfo s1=new showInfo(path+listOfFiles[i].getName());
-                showInfo b=new showInfo(path1);
+               
+                showInfo b=new showInfo(path1,path);
                 s=b.xuly();
                 
                 
@@ -371,7 +417,7 @@ public TestSwing1(String path) throws IOException{
             if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 
 
-               TestSwing s=new TestSwing();
+              
                this.setVisible(false);
                     try {
                         //s.draw();
@@ -417,18 +463,7 @@ public TestSwing1(String path) throws IOException{
 
             if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 
-                //Tao graphic va luu
-                TestSwing s=new TestSwing();
-                BufferedImage img = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
-                Graphics2D g2d = img.createGraphics();
-                this.printAll(g2d);
-                g2d.dispose();
-                try {
-                    ImageIO.write(img, "png", new File(chooser.getSelectedFile().toString().replace("\\\\","/")+"/"+"UML.png"));
-                } catch (IOException ex) {
-                    Logger.getLogger(TestSwing1.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
+               
                 
 
             } else {
